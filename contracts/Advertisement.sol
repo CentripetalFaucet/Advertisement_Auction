@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
 contract Advertisement {
-    string private image_url = "https://via.placeholder.com/150";
+    string private image_url = "https://via.placeholder.com/350";
     string private text = "Placeholder text";
     uint private price = 0; // First user can upload their image for free (+gas);
 
@@ -12,6 +12,10 @@ contract Advertisement {
         text = new_text;
         price = msg.value;
 
+        return (image_url, text, price);
+    }
+
+    function getAdvertisement() public view returns(string memory, string memory, uint) {
         return (image_url, text, price);
     }
 }

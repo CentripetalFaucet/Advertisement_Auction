@@ -1,2 +1,4 @@
 Decisions:
     The owner of an advertisement must still increase bid in order to update image/text. Therefore, tracking the advertisement owner is not necessary.
+
+How to deal with multiple purchases at the same time? Do one of the users simply lose gas?
