@@ -1,13 +1,17 @@
 import React, { Component } from "react";
 
+const eth_logo = "https://d33wubrfki0l68.cloudfront.net/fcd4ecd90386aeb50a235ddc4f0063cfbb8a7b66/4295e/static/bfc04ac72981166c740b189463e1f74c/40129/eth-diamond-black-white.jpg"
+
+
 class Advertisement extends Component {
-    
+    state = {image_url:"", text:"", price:0}
     constructor(props) {
         super(props);
-        this.image_url = props.data[0]
-        this.text = props.data[1]
-        this.price = props.data[2]
-        this.eth_logo = "https://d33wubrfki0l68.cloudfront.net/fcd4ecd90386aeb50a235ddc4f0063cfbb8a7b66/4295e/static/bfc04ac72981166c740b189463e1f74c/40129/eth-diamond-black-white.jpg"
+    }
+
+    componentDidMount = async() => {
+        const advertisement = await this.props.contract.methods.getAdvertisement().call();
+        this.setState({image_url:advertisement[0],text:advertisement[1],price:advertisement[2]});
     }
 
     buyAdvertisement() {
@@ -19,13 +23,12 @@ class Advertisement extends Component {
         return (
             <div>
                 <div>
-                    {this.text}
+                    {this.state.text}
                 </div>
-                {/* <br/> */}
-                <img src={this.image_url}/>
+                <img src={this.state.image_url}/>
                 <div>
                     <button onClick={this.buyAdvertisement}>
-                    Buy this space? Only {this.price} ETH!
+                    Buy this space? Only {this.state.price} ETH!
                     </button>
                 </div>
 

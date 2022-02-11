@@ -20,13 +20,10 @@ class App extends Component {
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = AdvertisementContract.networks[networkId];
-      const advertisementInstance = new web3.eth.Contract(
+      this.advertisementInstance = new web3.eth.Contract(
         AdvertisementContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
-
-      this.advertisement = await advertisementInstance.methods.getAdvertisement().call();
-      console.log(this.advertisement);
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
@@ -48,7 +45,7 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <Advertisement data={this.advertisement}/>
+        <Advertisement contract={this.advertisementInstance}/>
       </div>
     );
   }
