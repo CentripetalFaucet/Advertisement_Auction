@@ -20,3 +20,23 @@
 .App-link {
   color: #09d3ac;
 }
+
+.Purchase-label {
+  font-size: 80%;
+  font-weight: bold;
+}
+
+.Info-label {
+  font-weight: normal;
+  font-style: italic;
+  text-decoration-line: underline;
+  margin-left: 10px;
+}
+
+.Info-label:hover {
+  color: lightgray;
+}
+
+.Price-description {
+  font-size: 80%;
+}

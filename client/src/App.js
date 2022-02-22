@@ -12,15 +12,15 @@ class App extends Component {
   componentDidMount = async () => {
     try {
       // Get network provider and web3 instance.
-      const web3 = await getWeb3();
+      this.web3 = await getWeb3();
 
       // Use web3 to get the user's accounts.
-      const accounts = await web3.eth.getAccounts();
+      this.accounts = await this.web3.eth.getAccounts();
 
       // Get the contract instance.
-      const networkId = await web3.eth.net.getId();
+      const networkId = await this.web3.eth.net.getId();
       const deployedNetwork = AdvertisementContract.networks[networkId];
-      this.advertisementInstance = new web3.eth.Contract(
+      this.advertisementInstance = new this.web3.eth.Contract(
         AdvertisementContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
@@ -37,15 +37,13 @@ class App extends Component {
     }
   };
 
-  
-
   render() {
     if (!this.state.loaded) {
       return <div>Loading to load Web3, accounts, and contract...</div>;
     }
     return (
       <div className="App">
-        <Advertisement contract={this.advertisementInstance}/>
+        <Advertisement web3={this.web3} accounts={this.accounts} contract={this.advertisementInstance}/>
       </div>
     );
   }
