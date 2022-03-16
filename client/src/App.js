@@ -19,10 +19,9 @@ class App extends Component {
 
       // Get the contract instance.
       const networkId = await this.web3.eth.net.getId();
-      const deployedNetwork = AdvertisementContract.networks[networkId];
       this.advertisementInstance = new this.web3.eth.Contract(
         AdvertisementContract.abi,
-        deployedNetwork && deployedNetwork.address,
+        AdvertisementContract.networks[networkId] && AdvertisementContract.networks[networkId].address,
       );
 
       // Set web3, accounts, and contract to the state, and then proceed with an

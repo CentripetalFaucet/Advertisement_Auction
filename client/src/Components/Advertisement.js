@@ -4,12 +4,18 @@ import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../App.css";
+import ipfs from "../ipfs";
+
 
 class Advertisement extends Component {
     constructor(props) {
         super(props);
 
-        this.state = { showModal: false, showDescription: false, newImage: "", newText: "" };
+        this.state = { showModal: false, 
+            showDescription: false, 
+            newImage: "", 
+            newText: "",
+            ipfsHash: null };
 
         this.openPurchaseModal = this.openPurchaseModal.bind(this);
         this.closePurchaseModal = this.closePurchaseModal.bind(this);
@@ -18,9 +24,22 @@ class Advertisement extends Component {
     }
 
     componentDidMount = async () => {
+        this.getAdvertisementFromContract();
+    }
+
+    getAdvertisementFromContract = async() => {
         const advertisement = await this.props.contract.methods.getAdvertisement().call();
+        console.log(advertisement);
+        let image_url = await this.retrieveFromIpfs(advertisement[0]);
+        let text = await this.retrieveFromIpfs(advertisement[1]);
         let price = parseInt(this.props.web3.utils.fromWei(advertisement[2])) + 1
-        this.setState({ image_url: advertisement[0], text: advertisement[1], price: price, newPrice: price });
+        this.setState({ image_url: image_url, text: text, price: price, newPrice: price });
+    }
+
+    retrieveFromIpfs = async(ipfsHash) => {
+        console.log(ipfsHash);
+        let buffer = await ipfs.cat(ipfsHash);
+        return buffer.toString();
     }
 
     openPurchaseModal() {
@@ -32,17 +51,55 @@ class Advertisement extends Component {
         this.setState({ showModal: false, newImage: "", newText: "", newPrice: this.state.price });
     }
 
+    sendDataToIPFS = async(data) => {
+        const buffer = ipfs.Buffer;
+        // const object = {
+        //     content: data
+        // }
+
+        // const objectString = 
+        let bufferedString = await buffer.from(data);
+
+        let ipfsHash = await ipfs.add(bufferedString)
+        // , (err, ipfsHash) => {
+        //     console.log(err, ipfsHash);
+        //     // this.setState({ ipfsHash: ipfsHash[0].hash });
+        //     // return ipfsHash[0].hash;
+        //     ipfsData = ipfsHash[0].hash;
+            
+        // }
+        return ipfsHash[0].hash;
+        // return ipfsData;
+    }
+
     purchaseAdvertisement = async () => {
         console.log(this.state.newImage);
-        console.log("Suck ME");
         let weiPrice = this.props.web3.utils.toWei(this.state.newPrice.toString(), 'ether');
 
         //TODO: Handle rejection
-        let result = await this.props.contract.methods.updateAdvertisement(this.state.newImage, this.state.newText).send({ from: this.props.accounts[0], value: weiPrice })
+        // const imageIpfsHash = this.sendDataToIPFS(this.state.newImage).then(result => {
+        //     console.log("Image Hash:");
+        //     console.log(result);
+        // });
+        const imageIpfsHash = await this.sendDataToIPFS(this.state.newImage)
+        const textIpfsHash = await this.sendDataToIPFS(this.state.newText)
+        // console.log(imageIpfsHash);
+        // console.log(textIpfsHash);
+
+        // let resultVal = await ipfs.cat(imageIpfsHash);
+        // const buffer = ipfs.Buffer;
+        // buffer.
+        // resultVal = resultVal.toString();
+        // console.log(resultVal);
+
+        let result = await this.props.contract.methods.updateAdvertisement(imageIpfsHash, textIpfsHash).send({ from: this.props.accounts[0], value: weiPrice })
+
         console.log(result)
-        const advertisement = await this.props.contract.methods.getAdvertisement().call();
-        let price = parseInt(this.props.web3.utils.fromWei(advertisement[2])) + 1
-        this.setState({ image_url: advertisement[0], text: advertisement[1], price: price, newPrice: price });
+        // const advertisement = await this.props.contract.methods.getAdvertisement().call();
+        // let price = parseInt(this.props.web3.utils.fromWei(advertisement[2])) + 1
+        // this.setState({ image_url: advertisement[0], text: advertisement[1], price: price, newPrice: price });
+        this.getAdvertisementFromContract();
+        this.closePurchaseModal()
     }
 
     handleInputChange(event) {
@@ -56,10 +113,12 @@ class Advertisement extends Component {
     render() {
         return (
             <div>
-                <h1>
+                <h1 className="Header-text">
                     {this.state.text}
                 </h1>
-                <img src={this.state.image_url} />
+                <div className="Image-div">
+                    <img className="Display-image" src={this.state.image_url} />
+                </div>
                 <div>
                     <br />
                     <Button onClick={this.openPurchaseModal}>
