@@ -28,14 +28,49 @@ contract("Advertisement", async(accounts) => {
     });
 
     it("Cannot update advertisement if transaction value is at or below listed price", async() => {
+        let instance = await Advertisement.deployed();
+
+        let advertisementValues = await instance.getAdvertisement();
+        let price = advertisementValues["2"];
+        const newText = "Test text"
+        const newImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Test-Logo.svg/783px-Test-Logo.svg.png"
+        const expectedError = "Payment must be greater than the listed price"
+
+        // Check when message value is below price
+        try {            
+            let result = await instance.updateAdvertisement(newImageUrl, newText, {from: mainAccount, value: price-1});
+            expect.fail("Advertisement was successfully updated despite message value not being sufficient.")
+        } 
+        catch (error) {
+            expect(error["reason"]).to.be.a('string').equal(expectedError, "Outputted incorrect error: " + error["reason"])
+        }
+
+        // Check when message value is equal to price
+        try {            
+            let result = await instance.updateAdvertisement(newImageUrl, newText, {from: mainAccount, value: price});
+            expect.fail("Advertisement was successfully updated despite message value not being sufficient.")
+        } 
+        catch (error) {
+            expect(error["reason"]).to.be.a('string').equal(expectedError, "Outputted incorrect error: " + error["reason"])
+        }
+        
     });
 
     it("Updating advertisement correctly sets attributes to the new values", async() => {
+        let instance = await Advertisement.deployed();
+        let advertisementValues = await instance.getAdvertisement();
+        let price = advertisementValues["2"];
+
+        
+
+        expect.fail("Incomplete test");
     });
 
     it("Updating advertisement a second time requires increased price", async() => {
+        expect.fail("Incomplete test");
     });
 
     it("Updating advertisement twice at once cancels one transaction", async() => {
+        expect.fail("Incomplete test");
     });
 })
